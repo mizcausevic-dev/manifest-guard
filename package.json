@@ -1,0 +1,15 @@
+{
+  "name": "manifest-guard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Policy-as-code linter for Kubernetes manifests. Runs in the browser and in CI with SARIF output.",
+  "type": "module",
+  "license": "MIT",
+  "bin": { "manifest-guard": "bin/manifest-guard.mjs" },
+  "scripts": {
+    "test": "node --test",
+    "scan": "node bin/manifest-guard.mjs",
+    "start": "python3 -m http.server 8080"
+  },
+  "engines": { "node": ">=20" }
+}

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Manifest Guard: policy-as-code for Kubernetes manifests</title>
+  <meta name="description" content="Paste Kubernetes YAML and get security and reliability findings instantly. 18 rules, SARIF export, CLI for CI. Runs entirely in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%230b0c10%27/%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%276%27 fill=%27%2366fcf1%27/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="./"><span class="dot" aria-hidden="true"></span>Manifest Guard</a>
+  <nav><a href="#rules">Rules</a><a href="#ci">CI usage</a><a href="https://github.com/mizcausevic-dev/manifest-guard">GitHub</a></nav>
+</div></header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="eyebrow">Platform security · Policy as code</div>
+    <h1>Catch insecure Kubernetes manifests before they merge.</h1>
+    <p>Paste YAML or open a file. 18 rules check for privilege escalation, host access, leaked secrets, missing limits and probes, and fragile rollouts. Results run locally in your browser. The same engine ships as a CLI that writes SARIF for GitHub code scanning.</p>
+  </section>
+
+  <div class="grid cols-2">
+    <section class="card">
+      <h2>Manifests</h2>
+      <div class="field-row">
+        <div class="field">
+          <label for="example">Load example</label>
+          <select id="example">
+            <option value="insecure">Insecure Deployment + Service</option>
+            <option value="hardened">Hardened reference</option>
+            <option value="blank">Blank</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="file">Open file (stays local)</label>
+          <input id="file" type="file" accept=".yaml,.yml,.json,text/yaml,application/json">
+        </div>
+      </div>
+      <textarea id="yaml" class="editor" spellcheck="false" aria-label="Kubernetes manifest YAML"></textarea>
+      <div class="error-box" id="err" role="alert"></div>
+    </section>
+
+    <div class="stack">
+      <div class="grid cols-4" id="tiles" aria-live="polite"></div>
+      <section class="card">
+        <h2>Findings</h2>
+        <div class="filters" role="group" aria-label="Severity filter">
+          <label><input type="checkbox" data-sev="error" checked> errors</label>
+          <label><input type="checkbox" data-sev="warning" checked> warnings</label>
+          <label><input type="checkbox" data-sev="note" checked> notes</label>
+          <span class="btn-row filters-actions">
+            <button type="button" class="ghost" id="dl-sarif">Download SARIF</button>
+            <button type="button" class="ghost" id="dl-json">Download JSON</button>
+          </span>
+        </div>
+        <div class="table-scroll"><table id="findings"><thead><tr>
+          <th>Severity</th><th>Rule</th><th class="num">Line</th><th>Resource</th><th>Finding</th>
+        </tr></thead><tbody></tbody></table></div>
+      </section>
+    </div>
+  </div>
+
+  <section class="card mt-16" id="rules">
+    <h2>Rule catalog</h2>
+    <div id="catalog"></div>
+  </section>
+
+  <section class="card mt-16" id="ci">
+    <h2>Use it in CI</h2>
+    <p>The same rules engine runs in Node 20+ with no dependencies to install. Exit code 1 means findings at or above <code>--fail-on</code>, and 2 means bad input.</p>
+    <pre class="code">node bin/manifest-guard.mjs k8s/*.yaml
+node bin/manifest-guard.mjs --format sarif --fail-on none k8s/*.yaml &gt; manifest-guard.sarif
+node bin/manifest-guard.mjs --disable MG002,MG008 --fail-on warning deploy.yaml</pre>
+    <p class="hint">Upload the SARIF file with <code>github/codeql-action/upload-sarif@v4</code> to see findings inline on pull requests.</p>
+  </section>
+</main>
+
+<footer class="site"><div class="wrap">
+  <span>Built by <a href="https://github.com/mizcausevic-dev">Miz Causevic</a> · Kinetic Gain LLC</span>
+  <span>MIT licensed · YAML parsing by vendored js-yaml (MIT)</span>
+</div></footer>
+<script type="module" src="src/app.js"></script>
+</body>
+</html>

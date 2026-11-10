@@ -1,0 +1,25 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: npm test
+      - name: Dogfood - hardened example must pass
+        run: node bin/manifest-guard.mjs examples/hardened.yaml
+      - name: Dogfood - insecure example must fail (known-positive control)
+        run: |
+          set +e
+          node bin/manifest-guard.mjs examples/insecure.yaml > /dev/null
+          code=$?
+          if [ "$code" -ne 1 ]; then echo "expected exit 1, got $code"; exit 1; fi
